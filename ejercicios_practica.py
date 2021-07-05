@@ -15,7 +15,9 @@ __author__ = "Inove Coding School"
 __email__ = "alumnos@inove.com.ar"
 __version__ = "1.1"
 
+import os
 import sqlite3
+from typing import AsyncGenerator
 
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
@@ -51,6 +53,7 @@ class Estudiante(base):
 
 
 def create_schema():
+
     # Borrar todos las tablas existentes en la base de datos
     # Esta linea puede comentarse sino se eliminar los datos
     base.metadata.drop_all(engine)
@@ -59,13 +62,72 @@ def create_schema():
     base.metadata.create_all(engine)
 
 
-def fill():
+def insert_tutor(tutor):
+    #creamos sesion
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    #creamos nuevo tutor
+    nuevo_tutor = Tutor(name=tutor)
+
+    #agregamos y comentamos
+    session.add(nuevo_tutor)
+    session.commit()
+    print(nuevo_tutor)
+
+
+def insert_estudiante(name,age,grade,tutor):
+    #creamos sesion
+    Session = sessionmaker(bin=engine)
+    session = Session()
+
+    #buscamos los tutores segun la lista de tutores que creamos
+    #query = session.query(Tutor).filter(Tutor.name == tutor)
+    #id_tutor = query.first()
+
+    #si no existe el tutor del estudiante no se puede crear, ya que cada tutor correspone le corresponde si o si a un alumno 
+    #if id_tutor is None:
+     #   print(f"Error al crear el estudiante {name}, no existe tal tutor en la base de datos {tutor}")
+      #  return
+    
+    #crea el estudiante:
+    #estudiante = Estudiante(name=name,age=age,grade=grade,)
+    #estudiante.tutor= id_tutor 
+    estudiante = Estudiante(name=name,age=age,grade=grade,tutor_id= tutor)
+    # Agregar la persona a la DB
+    session.add(estudiante)
+    session.commit()
+    print(estudiante)
+
+
+def fill(persona):
     print('Completemos esta tablita!')
     # Llenar la tabla de la secundaria con al munos 2 tutores
     # Cada tutor tiene los campos:
     # id --> este campo es auto incremental por lo que no deberá completarlo
     # name --> El nombre del tutor (puede ser solo nombre sin apellido)
+    #***************************************************************************
+    #creamos los tutores
+    
+    if persona == tutores:
+        data_tutor = tutores
+        for row in data_tutor:
+            insert_tutor(row)
 
+    #creamos los estudiantes
+    if persona == estudiantes:
+        data_estudiante= estudiantes
+        
+        for row in data_estudiante:
+            
+            name,age,grade,tutor = row
+            insert_estudiante(name,age,grade,tutor) 
+            
+
+            
+            
+        
+    #***************************************************************************
     # Llenar la tabla de la secundaria con al menos 5 estudiantes
     # Cada estudiante tiene los posibles campos:
     # id --> este campo es auto incremental por lo que no deberá completarlo
@@ -84,7 +146,7 @@ def fetch():
     # todos los objetos creaods de la tabla estudiante.
     # Imprimir en pantalla cada objeto que traiga la query
     # Realizar un bucle para imprimir de una fila a la vez
-
+    
 
 def search_by_tutor(tutor):
     print('Operación búsqueda!')
@@ -124,15 +186,28 @@ def count_grade(grade):
 if __name__ == '__main__':
     print("Bienvenidos a otra clase de Inove con Python")
     create_schema()   # create and reset database (DB)
-    # fill()
+
+    #Tutores = 2 (En total)
+    #creamos 2 grupos (2 tupas) para luego insertarlos con la funcion fill y recorrerlo
+    tutores = [('Ricardo'),('Ernesto')]
+
+    estudiantes = [('Marcos',31,3,'Ricardo',),
+                    ('Juan',15,3,'Ricardo',),
+                    ('Alberto',25,1,'Ernesto',),
+                    ('Carlos',20,1,'Ernesto',),
+                    ('Sebastian',38,2,'Ricardo',)]
+
+    fill(persona=tutores)
+    fill(persona=estudiantes)
+
     # fetch()
 
-    tutor = 'nombre_tutor'
+    #tutor = 'nombre_tutor'
     # search_by_tutor(tutor)
 
-    nuevo_tutor = 'nombre_tutor'
-    id = 2
+    #nuevo_tutor = 'nombre_tutor'
+    #id = 2
     # modify(id, nuevo_tutor)
 
-    grade = 2
+    #grade = 2
     # count_grade(grade)
