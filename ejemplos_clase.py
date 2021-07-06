@@ -87,7 +87,7 @@ def insert_persona(name, age, country):
     # Crear la session
     Session = sessionmaker(bind=engine)
     session = Session()
-
+    
     # Buscar la nacionalidada nueva nacionalidad
     query = session.query(Nacionalidad).filter(Nacionalidad.country == country)
     nationality = query.first()

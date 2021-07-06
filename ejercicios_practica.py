@@ -64,9 +64,9 @@ def create_schema():
 
 def insert_tutor(tutor):
     #creamos sesion
+    # Crear la session
     Session = sessionmaker(bind=engine)
     session = Session()
-    
     #creamos nuevo tutor
     nuevo_tutor = Tutor(name=tutor)
 
@@ -76,28 +76,22 @@ def insert_tutor(tutor):
     print(nuevo_tutor)
 
 
-def insert_estudiante(name,age,grade,tutor):
+def insert_estudiante(name,age,grade,tutor_id):
     #creamos sesion
-    Session = sessionmaker(bin=engine)
+    
+    Session = sessionmaker(bind=engine)
     session = Session()
 
-    #buscamos los tutores segun la lista de tutores que creamos
-    #query = session.query(Tutor).filter(Tutor.name == tutor)
-    #id_tutor = query.first()
+    query = session.query(Tutor).filter(Tutor.name == tutor_id)
+    tutore = query.first()
 
-    #si no existe el tutor del estudiante no se puede crear, ya que cada tutor correspone le corresponde si o si a un alumno 
-    #if id_tutor is None:
-     #   print(f"Error al crear el estudiante {name}, no existe tal tutor en la base de datos {tutor}")
-      #  return
-    
-    #crea el estudiante:
-    #estudiante = Estudiante(name=name,age=age,grade=grade,)
-    #estudiante.tutor= id_tutor 
-    estudiante = Estudiante(name=name,age=age,grade=grade,tutor_id= tutor)
+    nuevo_estudiante = Estudiante(name=name,age=age,grade=grade)
+    nuevo_estudiante.tutor = tutore
+
     # Agregar la persona a la DB
-    session.add(estudiante)
-    session.commit()
-    print(estudiante)
+    session.add(nuevo_estudiante)
+    #session.commit()
+    print(nuevo_estudiante)
 
 
 def fill(persona):
@@ -120,13 +114,9 @@ def fill(persona):
         
         for row in data_estudiante:
             
-            name,age,grade,tutor = row
-            insert_estudiante(name,age,grade,tutor) 
+            name,age,grade,tutor_id = row
+            insert_estudiante(name,int(age),int(grade),tutor_id)
             
-
-            
-            
-        
     #***************************************************************************
     # Llenar la tabla de la secundaria con al menos 5 estudiantes
     # Cada estudiante tiene los posibles campos:
