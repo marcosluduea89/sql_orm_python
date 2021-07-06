@@ -22,7 +22,8 @@ from typing import AsyncGenerator
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import session, sessionmaker, relationship
+from sqlalchemy.sql.expression import join
 
 # Crear el motor (engine) de la base de datos
 engine = sqlalchemy.create_engine("sqlite:///secundaria.db")
@@ -90,7 +91,7 @@ def insert_estudiante(name,age,grade,tutor_id):
 
     # Agregar la persona a la DB
     session.add(nuevo_estudiante)
-    #session.commit()
+    session.commit()
     print(nuevo_estudiante)
 
 
@@ -136,7 +137,14 @@ def fetch():
     # todos los objetos creaods de la tabla estudiante.
     # Imprimir en pantalla cada objeto que traiga la query
     # Realizar un bucle para imprimir de una fila a la vez
+    Session = sessionmaker (bind= engine)
+    session = Session ()
     
+    query = session.query(Estudiante)
+
+    for estudiante in query:
+        print(estudiante)
+
 
 def search_by_tutor(tutor):
     print('Operación búsqueda!')
@@ -147,6 +155,12 @@ def search_by_tutor(tutor):
     # Para poder realizar esta query debe usar join, ya que
     # deberá crear la query para la tabla estudiante pero
     # buscar por la propiedad de tutor.name
+    Session = sessionmaker (bind= engine)
+    session = Session ()
+
+    query = session.query(Estudiante).join(Estudiante.tutor).filter(Tutor.name== 'Ricardo') 
+    for tutor in query:
+        print(tutor)
 
 
 def modify(id, name):
@@ -162,6 +176,20 @@ def modify(id, name):
     # TIP: En clase se hizo lo mismo para las nacionalidades con
     # en la función update_persona_nationality
 
+    Session = sessionmaker (bind= engine)
+    session = Session ()
+
+ 
+    query = session.query(Estudiante).filter(Estudiante.id)
+    estudiante = query.first()
+    
+    estudiante.tutor = Tutor(name = name)
+    
+    session.add(estudiante)
+    session.commit()
+    
+    fetch()
+
 
 def count_grade(grade):
     print('Estudiante por grado')
@@ -171,7 +199,18 @@ def count_grade(grade):
 
     # TIP: En clase se hizo lo mismo para las nacionalidades con
     # en la función count_persona
+    
+    Session = sessionmaker (bind= engine)
+    session = Session ()
+    estudiantes_grado= []
 
+    resultado = session.query(Estudiante).filter(Estudiante.grade == grade ).count()
+    query =  session.query(Estudiante).filter(Estudiante.grade == grade )
+
+    for estudiante in query:
+        estudiantes_grado.append(estudiante.name)
+
+    print(f'la cantidad de alumnos en el grado {grade} es : {resultado} y los estudiantes son: {estudiantes_grado}')
 
 if __name__ == '__main__':
     print("Bienvenidos a otra clase de Inove con Python")
@@ -190,14 +229,14 @@ if __name__ == '__main__':
     fill(persona=tutores)
     fill(persona=estudiantes)
 
-    # fetch()
+    fetch()
 
-    #tutor = 'nombre_tutor'
-    # search_by_tutor(tutor)
+    tutor = 'Ricardo'
+    search_by_tutor(tutor)
 
-    #nuevo_tutor = 'nombre_tutor'
-    #id = 2
-    # modify(id, nuevo_tutor)
+    nuevo_tutor = 'Ramon'
+    id = 2
+    modify(id, nuevo_tutor)
 
-    #grade = 2
-    # count_grade(grade)
+    grade = 2
+    count_grade(grade)
