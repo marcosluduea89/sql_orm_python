@@ -80,7 +80,7 @@ def insert_tutor(tutor):
 def insert_estudiante(name,age,grade,tutor_id):
     #creamos sesion
     
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bin=engine)
     session = Session()
 
     query = session.query(Tutor).filter(Tutor.name == tutor_id)
